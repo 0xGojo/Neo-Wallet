@@ -1,0 +1,13 @@
+{
+	"actual": {
+		"uri": "/address/",
+		"command": ""
+	},
+	"expected": [
+		"/address/balance/",
+		"/address/history/",
+		"/address/claims/",
+		"/transaction/"
+	],
+	"error": "unknown URI"
+}

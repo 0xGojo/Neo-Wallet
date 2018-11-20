@@ -1,0 +1,234 @@
+<?xml version="1.0" ?>
+<BlockDbImpl>
+  <close>
+    <sql>
+      SHUTDOWN
+    </sql>
+  </close>
+  <deleteBlockAtHeight>
+    <sql>delete from block where index = ?</sql>
+    <sql>delete from transaction where block_index = ?</sql>
+    <sql>delete from transaction_input where block_index = ?</sql>
+    <sql>delete from transaction_output where block_index = ?</sql>
+    <sql>delete from transaction_script where block_index = ?</sql>
+  </deleteBlockAtHeight>
+  <create>
+    <sql>SET DB_CLOSE_DELAY=10</sql>
+    <sql>SET DB_CLOSE_ON_EXIT=FALSE</sql>
+    <sql>SET MULTI_THREADED=TRUE</sql>
+
+    <sql>
+      CREATE CACHED TABLE IF NOT EXISTS block (
+      hash BINARY(32) not null,
+      prev_hash BINARY(32) not null,
+      index BINARY(4) not null,
+      block LONGVARBINARY not null
+      )
+    </sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_block_hash ON block (hash)
+    </sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_block_prev_hash ON block (prev_hash)
+    </sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_block_index ON block (index)
+    </sql>
+    <sql><![CDATA[
+      CREATE CACHED TABLE IF NOT EXISTS transaction (
+      block_index BINARY(4) not null,
+      transaction_index BINARY(2) not null,
+      transaction_hash BINARY(32) not null,
+      transaction LONGVARBINARY not null
+      )
+    ]]></sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_transaction_index_hash ON transaction (block_index,transaction_hash)
+    </sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_transaction_index_index ON transaction (block_index,transaction_index)
+    </sql>
+    <sql><![CDATA[
+      CREATE CACHED TABLE IF NOT EXISTS transaction_output (
+      block_index BINARY(4) not null,
+      transaction_index BINARY(2) not null,
+      transaction_output_index BINARY(2) not null,
+      asset_id BINARY(32) not null,
+      value BINARY(8) not null,
+      script_hash BINARY(20) not null
+      )
+    ]]></sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_transaction_output_index ON transaction_output (block_index,transaction_index,transaction_output_index)
+    </sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_transaction_output_script_hash ON transaction_output (script_hash)
+    </sql>
+    <sql><![CDATA[
+      CREATE CACHED TABLE IF NOT EXISTS transaction_input (
+      block_index BINARY(4) not null,
+      transaction_index BINARY(2) not null,
+      transaction_input_index BINARY(4) not null,
+      prev_transaction_hash BINARY(32) not null,
+      prev_transaction_output_index BINARY(2) not null
+      )
+    ]]></sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_transaction_input_index ON transaction_input (block_index,transaction_index,transaction_input_index)
+    </sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_transaction_input_prev ON transaction_input (prev_transaction_hash,prev_transaction_output_index)
+    </sql>
+    <sql><![CDATA[
+      CREATE CACHED TABLE IF NOT EXISTS transaction_script (
+        block_index BINARY(4) not null,
+        transaction_index BINARY(2) not null,
+        transaction_script_index BINARY(4) not null,
+        invocation_script LONGVARBINARY not null,
+        verification_script LONGVARBINARY not null
+      )
+    ]]></sql>
+    <sql>
+      CREATE INDEX IF NOT EXISTS ix_transaction_script_index ON transaction_script (block_index,transaction_index,transaction_script_index)
+    </sql>
+  </create>
+  <containsHash>
+    <sql>
+      select 1
+      from block
+      where hash = ?
+    </sql>
+  </containsHash>
+  <getBlockWithIndex>
+    <sql>
+      select block
+      from block
+      where index = ?
+    </sql>
+  </getBlockWithIndex>
+  <getBlockWithHash>
+    <sql>
+      select block
+      from block
+      where hash = ?
+    </sql>
+  </getBlockWithHash>
+  <getBlockCount>
+    <sql>
+      select count(index)
+      from block
+    </sql>
+  </getBlockCount>
+  <getBlockWithMaxIndex>
+    <sql>
+      select block
+      from block
+      where index = (select max(index) from block)
+      limit 1
+    </sql>
+  </getBlockWithMaxIndex>
+  <putBlock>
+    <sql>
+      insert into block (hash,prev_hash,index,block) values (?,?,?,?)
+    </sql>
+  </putBlock>
+  <putTransaction>
+    <sql>
+      insert into transaction (block_index,transaction_index,transaction_hash,transaction) values (?,?,?,?)
+    </sql>
+  </putTransaction>
+  <getTransactionsWithIndex>
+    <sql>
+      select transaction
+      from transaction
+      where block_index = ?
+      order by transaction_index asc
+    </sql>
+  </getTransactionsWithIndex>
+  <getTransactionWithHash>
+    <sql>
+      select block_index, transaction_index, transaction
+      from transaction
+      where transaction_hash = ?
+    </sql>
+  </getTransactionWithHash>
+  <putTransactionOutput>
+    <sql><![CDATA[
+      insert into transaction_output (
+        block_index,
+        transaction_index,
+        transaction_output_index,
+        asset_id,
+        value,
+        script_hash
+      ) values (?,?,?,?,?,?)
+    ]]></sql>
+  </putTransactionOutput>
+  <getTransactionOutputsWithBlockIndex>
+    <sql><![CDATA[
+      select transaction_index,asset_id,value,script_hash
+      from transaction_output
+      where block_index = ?
+      order by transaction_index, transaction_output_index asc
+    ]]></sql>
+  </getTransactionOutputsWithBlockIndex>
+  <getTransactionOutputsWithBlockAndTransactionIndex>
+    <sql><![CDATA[
+      select transaction_index,asset_id,value,script_hash
+      from transaction_output
+      where block_index = ? and transaction_index = ?
+    ]]></sql>
+  </getTransactionOutputsWithBlockAndTransactionIndex>
+  <putTransactionInput>
+    <sql><![CDATA[
+      insert into transaction_input (
+        block_index,
+        transaction_index,
+        transaction_input_index,
+        prev_transaction_hash,
+        prev_transaction_output_index
+      ) values (?,?,?,?,?)
+    ]]></sql>
+  </putTransactionInput>
+  <getTransactionInputsWithBlockIndex>
+    <sql><![CDATA[
+      select transaction_index,prev_transaction_hash,prev_transaction_output_index
+      from transaction_input
+      where block_index = ?
+      order by transaction_input_index asc
+    ]]></sql>
+  </getTransactionInputsWithBlockIndex>
+  <getTransactionInputsWithBlockAndTransactionIndex>
+    <sql><![CDATA[
+      select transaction_index,prev_transaction_hash,prev_transaction_output_index
+      from transaction_input
+      where block_index = ? and transaction_index = ?
+    ]]></sql>
+  </getTransactionInputsWithBlockAndTransactionIndex>
+  <putTransactionScript>
+    <sql><![CDATA[
+      insert into transaction_script (
+        block_index,
+        transaction_index,
+        transaction_script_index,
+        invocation_script,
+        verification_script
+      ) values (?,?,?,?,?)
+    ]]></sql>
+  </putTransactionScript>
+  <getTransactionScriptsWithBlockIndex>
+    <sql><![CDATA[
+      select transaction_index,invocation_script,verification_script
+      from transaction_script
+      where block_index = ?
+      order by transaction_script_index asc
+    ]]></sql>
+  </getTransactionScriptsWithBlockIndex>
+  <getTransactionScriptsWithBlockAndTransactionIndex>
+    <sql><![CDATA[
+      select transaction_index,invocation_script,verification_script
+      from transaction_script
+      where block_index = ? and transaction_index = ?
+    ]]></sql>
+  </getTransactionScriptsWithBlockAndTransactionIndex>
+</BlockDbImpl>

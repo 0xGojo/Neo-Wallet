@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fileset-config file-format-version="1.2.0" simple-config="true" sync-formatter="false">
+  <local-check-config name="checkstyle-config.xml" location="checkstyle-config.xml" type="project" description="">
+    <additional-data name="protect-config-file" value="false"/>
+  </local-check-config>
+  <fileset name="all" enabled="true" check-config-name="checkstyle-config.xml" local="true">
+    <file-match-pattern match-pattern="." include-pattern="true"/>
+  </fileset>
+  <filter name="FilesFromPackage" enabled="true">
+    <filter-data value="src/main/java/neo/model/crypto/ecc"/>
+    <filter-data value="src/test/java/neo/rpc/client/test"/>
+    <filter-data value="src/test/resources/neo/rpc/client/test"/>
+  </filter>
+</fileset-config>
