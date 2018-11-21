@@ -13,8 +13,6 @@ import org.junit.runners.Suite;
 		/** */
 		TestBlockSerialization.class,
 		/** */
-		TestRpcServer.class,
-		/** */
 		TestCoreToJson.class,
 		/** */
 		TestCoreExceptions.class,
