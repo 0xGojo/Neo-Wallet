@@ -1,10 +1,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>neo</groupId>
+  <groupId>neoj</groupId>
   <artifactId>neo-java</artifactId>
   <version>0.0.2-SNAPSHOT</version>
-
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>@thachtb modified source code and added some features </description>
   <url>https://github.com/coranos/neo-java</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Thachtb</name>
+      <email>thach4567@gmail.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/thach4567/Neo-Wallet.git</connection>
+    <developerConnection>scm:git:ssh://github.com:thach4567/Neo-Wallet.git</developerConnection>
+    <url>http://github.com/thach4567/Neo-Wallet/tree/master</url>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -112,6 +133,7 @@
       <version>2.3.1</version>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
