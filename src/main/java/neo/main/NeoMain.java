@@ -112,8 +112,10 @@ public final class NeoMain {
 	 *
 	 * @param args
 	 *            the application arguments (none currently).
-     */
-	public static void main(final String[] args) {
+	 * @throws Exception
+	 *             if an error occurs.
+	 */
+	public static void main(final String[] args) throws Exception {
 		LOG.info("STARTED main");
 		LOG.info("INTERIM main os.arch:{};", System.getProperty("os.arch"));
 

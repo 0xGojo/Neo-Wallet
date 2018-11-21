@@ -389,7 +389,11 @@ public final class LocalNodeDataSynchronizedUtil {
 				}
 				final long blockchainBlockHeight = localNodeData.getBlockchainBlockHeight();
 				final long localBlockHeightLowerBy = blockchainBlockHeight - localBlockHeight;
-                forceSynch = localBlockHeightLowerBy < 10;
+				if (localBlockHeightLowerBy < 10) {
+					forceSynch = true;
+				} else {
+					forceSynch = false;
+				}
 				if (LOG.isDebugEnabled()) {
 					final String msg = "INTERIM put forceSynch={};localBlockHeight:{};blockchainBlockHeight:{};localBlockHeightLowerBy:{};";
 					LOG.debug(msg, forceSynch, localBlockHeight, blockchainBlockHeight, localBlockHeightLowerBy);

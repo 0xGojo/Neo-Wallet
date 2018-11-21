@@ -84,8 +84,10 @@ public final class RemoteNodeControllerRunnable implements StopRunnable {
 	 *            the input stream to read.
 	 *
 	 * @return the message, or returns null if there's a SocketTimeoutException.
-     */
-	private Message getMessageOrTimeOut(final long readTimeOut, final InputStream in) {
+	 * @throws IOException
+	 *             if an error occurs.
+	 */
+	private Message getMessageOrTimeOut(final long readTimeOut, final InputStream in) throws IOException {
 		Message messageRecieved;
 		try {
 			messageRecieved = new Message(readTimeOut, in);
@@ -198,7 +200,7 @@ public final class RemoteNodeControllerRunnable implements StopRunnable {
 				s.setSoTimeout(2000);
 				s.connect(data.getTcpAddressAndPort(), 2000);
 
-				try (OutputStream out = s.getOutputStream(); InputStream in = s.getInputStream()) {
+				try (OutputStream out = s.getOutputStream(); InputStream in = s.getInputStream();) {
 					data.setGoodPeer(true);
 
 					while (data.isGoodPeer()) {

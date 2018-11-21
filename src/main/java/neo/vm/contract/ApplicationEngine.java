@@ -147,7 +147,7 @@ public final class ApplicationEngine extends ExecutionEngine {
 	/// <param name="value">Value</param>
 	/// <returns>Return True if are allowed, otherwise False</returns>
 	private boolean CheckBigInteger(final BigInteger value) {
-		return value != null && value.toByteArray().length <= MaxSizeForBigInteger;
+		return value == null ? false : value.toByteArray().length <= MaxSizeForBigInteger;
 	}
 
 	/// <summary>
@@ -258,8 +258,11 @@ public final class ApplicationEngine extends ExecutionEngine {
 		switch (nextInstruction) {
 		case CALL:
 		case APPCALL:
-            return invocationStack.getCount() < MaxInvocationStackSize;
-            default:
+			if (invocationStack.getCount() >= MaxInvocationStackSize) {
+				return false;
+			}
+			return true;
+		default:
 			return true;
 		}
 	}
@@ -274,16 +277,22 @@ public final class ApplicationEngine extends ExecutionEngine {
 			System.arraycopy(getCurrentContext().getScript(), getCurrentContext().getInstructionPointer() + 1, ba, 0,
 					ba.length);
 			final long length = ModelUtil.getUInt32(ByteBuffer.wrap(ba)).asLong();
-            return length <= MaxItemSize;
-        }
+			if (length > MaxItemSize) {
+				return false;
+			}
+			return true;
+		}
 		case CAT: {
 			if (evaluationStack.getCount() < 2) {
 				return false;
 			}
 			final int length = evaluationStack.peek(0).getByteArray().length
 					+ evaluationStack.peek(1).getByteArray().length;
-            return length <= MaxItemSize;
-        }
+			if (length > MaxItemSize) {
+				return false;
+			}
+			return true;
+		}
 		default:
 			return true;
 		}
@@ -316,8 +325,11 @@ public final class ApplicationEngine extends ExecutionEngine {
 			return true;
 		}
 		size += evaluationStack.getCount() + altStack.getCount();
-        return size <= MaxStackSize;
-    }
+		if (size > MaxStackSize) {
+			return false;
+		}
+		return true;
+	}
 
 	@Override
 	public boolean Execute() {

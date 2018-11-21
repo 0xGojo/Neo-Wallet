@@ -244,8 +244,8 @@ public final class Transaction implements ToJsonObject, ByteArraySerializable, S
 	 *            the output stream to use.
 	 */
 	private void writeBaseData(final OutputStream bout) {
-		NetworkUtil.write(bout, type.getTypeByte());
-		NetworkUtil.write(bout, version);
+		NetworkUtil.write(bout, new byte[] { type.getTypeByte() });
+		NetworkUtil.write(bout, new byte[] { version });
 		NetworkUtil.write(bout, exclusiveData, false);
 		NetworkUtil.write(bout, attributes);
 	}

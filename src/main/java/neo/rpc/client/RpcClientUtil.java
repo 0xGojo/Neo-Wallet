@@ -96,7 +96,7 @@ public final class RpcClientUtil {
 	 * @return the transaction hash.
 	 */
 	public static JSONObject getTransactionByHash(final long timeoutMillis, final String rpcNode,
-			final boolean silentErrors, final String txId) {
+												  final boolean silentErrors, final String txId) {
 		final JSONArray paramsJson = new JSONArray();
 		paramsJson.put(txId);
 		paramsJson.put(0);
@@ -154,7 +154,7 @@ public final class RpcClientUtil {
 	 * @return the response, or null if an error occurs due to a timeout.
 	 */
 	public static JSONObject post(final long timeoutMillis, final String rpcNode, final boolean silentErrors,
-			final JSONObject inputJson) {
+								  final JSONObject inputJson) {
 		LOG.debug("inputJson:{}", inputJson);
 		final StringEntity input = new StringEntity(inputJson.toString(), ContentType.APPLICATION_JSON);
 		final HttpPost post = new HttpPost(rpcNode);

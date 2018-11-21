@@ -58,7 +58,7 @@ public final class StateDescriptor implements ToJsonObject, ByteArraySerializabl
 	@Override
 	public byte[] toByteArray() {
 		final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		NetworkUtil.write(bout, type.getTypeByte());
+		NetworkUtil.write(bout, new byte[] { type.getTypeByte() });
 		NetworkUtil.writeByteArray(bout, key);
 		NetworkUtil.writeString(bout, field);
 		NetworkUtil.writeByteArray(bout, value);

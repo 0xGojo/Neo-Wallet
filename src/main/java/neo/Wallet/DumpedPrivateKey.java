@@ -51,7 +51,6 @@ public class DumpedPrivateKey {
      * Creates a DumpedPrivateKey from an encoded string
      *
      * @param       string                  Encoded private key
-     * @throws      AddressFormatException  Encoded private key is not valid
      */
     public DumpedPrivateKey(String string) {
         //

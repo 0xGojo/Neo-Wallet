@@ -8,20 +8,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
-import java.util.jar.Attributes;
 
 import com.google.common.primitives.Longs;
 import neo.model.core.TransactionAttribute;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
-import org.h2.mvstore.db.TransactionStore;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -43,13 +40,12 @@ import neo.model.core.TransactionOutput;
 import neo.model.db.BlockDb;
 
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.crypto.Data;
 
 /**
  * the utilities for editing the neo model.
  *
  * @author coranos
- * @author thachtb
+ *
  */
 public final class ModelUtil {
 
@@ -162,10 +158,11 @@ public final class ModelUtil {
 	 *            the address to use.
 	 * @return the scripthash of the address.
 	 */
-	public static UInt160 addressToScriptHash(final String address){
-		byte[] ProgramHash = Base58Util.decode(address);
-		String ProgramHashString = ModelUtil.toHexString(ProgramHash).substring(0, 42);
-		return new UInt160(ModelUtil.hexStringToByteArray(ProgramHashString.substring(2, 42)));
+	public static UInt160 addressToScriptHash(final String address) {
+        byte[] ProgramHash = Base58Util.decode(address);
+        ArrayUtils.reverse(ProgramHash);
+        String ProgramHashString = ModelUtil.toHexString(ProgramHash).substring(0, 42);
+        return new UInt160(ModelUtil.hexStringToByteArray(ProgramHashString.substring(2, 42)));
 	}
 
 	/**
@@ -439,7 +436,11 @@ public final class ModelUtil {
 	 */
 	public static String getFixedLengthString(final ByteBuffer bb, final int length) {
 		final byte[] ba = getFixedLengthByteArray(bb, length, false);
-		return new String(ba, StandardCharsets.UTF_8);
+		try {
+			return new String(ba, UTF_8);
+		} catch (final UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -578,7 +579,11 @@ public final class ModelUtil {
 	 */
 	public static String getVariableLengthString(final ByteBuffer bb) {
 		final byte[] ba = getVariableLengthByteArray(bb);
-		return new String(ba, StandardCharsets.UTF_8);
+		try {
+			return new String(ba, UTF_8);
+		} catch (final UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -687,36 +692,35 @@ public final class ModelUtil {
 	 * @return the address.
 	 */
 	public static String scriptHashToAddress(final UInt160 scriptHash) {
-		if (scriptHash == null) {
-			return null;
-		}
-		final byte[] data = new byte[21];
+        if (scriptHash == null) {
+            return null;
+        }
+        final byte[] data = new byte[21];
 
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("toAddress ADDRESS_VERSION {}", ModelUtil.toHexString(ADDRESS_VERSION));
-		}
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("toAddress ADDRESS_VERSION {}", ModelUtil.toHexString(ADDRESS_VERSION));
+        }
 
-		final byte[] scriptHashBa = scriptHash.toByteArray();
-		System.arraycopy(scriptHashBa, 0, data, 0, scriptHashBa.length);
+        final byte[] scriptHashBa = scriptHash.toByteArray();
+        System.arraycopy(scriptHashBa, 0, data, 0, scriptHashBa.length);
 
-		data[data.length - 1] = ADDRESS_VERSION;
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("toAddress data {}", ModelUtil.toHexString(data));
-		}
+        data[data.length - 1] = ADDRESS_VERSION;
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("toAddress data {}", ModelUtil.toHexString(data));
+        }
 
-		final byte[] dataAndChecksum = new byte[25];
-		ArrayUtils.reverse(data);
-		System.arraycopy(data, 0, dataAndChecksum, 0, data.length);
-		final byte[] hash = SHA256HashUtil.getDoubleSHA256Hash(data);
-		final byte[] hash4 = new byte[4];
-		System.arraycopy(hash, 0, hash4, 0, 4);
-		System.arraycopy(hash4, 0, dataAndChecksum, 21, 4);
-		if (LOG.isTraceEnabled()) {
-			LOG.trace("toAddress dataAndChecksum {}", ModelUtil.toHexString(dataAndChecksum));
-		}
-
-		final String address = toBase58String(dataAndChecksum);
-		return address;
+        final byte[] dataAndChecksum = new byte[25];
+        ArrayUtils.reverse(data);
+        System.arraycopy(data, 0, dataAndChecksum, 0, data.length);
+        final byte[] hash = SHA256HashUtil.getDoubleSHA256Hash(data);
+        final byte[] hash4 = new byte[4];
+        System.arraycopy(hash, 0, hash4, 0, 4);
+        System.arraycopy(hash4, 0, dataAndChecksum, 21, 4);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("toAddress dataAndChecksum {}", ModelUtil.toHexString(dataAndChecksum));
+        }
+        ArrayUtils.reverse(dataAndChecksum);
+        return toBase58String(dataAndChecksum);
 	}
 
 	/**
@@ -823,12 +827,110 @@ public final class ModelUtil {
 		return new String(Hex.encodeHex(ba));
 	}
 
-	public static String num2hexstring(int size, final byte... data) {
-		size = size * 2;
-		String hexstring = toHexString(data);
-		hexstring = hexstring.length() % size == 0 ? hexstring : (new String(new char[size]).replace("\0", "0")+ hexstring).substring(hexstring.length());
-		// if (littleEndian) hexstring = reverseHex(hexstring);
-		return hexstring;
+	/**
+	 * converts a list of objects that implement the ToJsonObject interface into a
+	 * JSONArray of JSONObjects.
+	 *
+	 * @param ifNullReturnEmpty
+	 *            if the list is null, return an empty list. If this value is false,
+	 *            return null for a null list.
+	 * @param list
+	 *            the list of objects to use.
+	 * @param <T>
+	 *            the type of the objects that implements ToJsonObject .
+	 * @return the JSONArray of JSONObjects.
+	 */
+	public static <T extends ToJsonObject> JSONArray toJSONArray(final boolean ifNullReturnEmpty, final List<T> list) {
+		if (list == null) {
+			if (ifNullReturnEmpty) {
+				return new JSONArray();
+			} else {
+				return null;
+			}
+		}
+		final JSONArray jsonArray = new JSONArray();
+
+		for (final T t : list) {
+			jsonArray.put(t.toJSONObject());
+		}
+
+		return jsonArray;
+	}
+
+	/**
+	 * converts a byte array to a hex string in reverse byte order.
+	 *
+	 * @param bytes
+	 *            the array of bytes.
+	 * @return the string.
+	 */
+	public static String toReverseHexString(final byte... bytes) {
+		final byte[] ba = new byte[bytes.length];
+		System.arraycopy(bytes, 0, ba, 0, bytes.length);
+		ArrayUtils.reverse(ba);
+		final BigInteger bi = new BigInteger(1, ba);
+		return bi.toString(16);
+	}
+
+	/**
+	 * converts the value to a double, by dividing by DECIMAL_DIVISOR.
+	 *
+	 * @param value
+	 *            the long value to convert.
+	 * @return the converted value
+	 */
+	public static double toRoundedDouble(final long value) {
+		final double input = value / DECIMAL_DIVISOR;
+		return input;
+	}
+
+	/**
+	 * converts the value to a double, by dividing by DECIMAL_DIVISOR. then formats
+	 * it to a string with two decimal places.
+	 *
+	 * @param value
+	 *            the long value to convert.
+	 * @return the converted value as a string.
+	 */
+	public static String toRoundedDoubleAsString(final long value) {
+		final double input = toRoundedDouble(value);
+		return String.format("%.2f", input);
+	}
+
+	/**
+	 * converts the value to a long, by dividing by DECIMAL_DIVISOR.
+	 *
+	 * @param value
+	 *            the long value to convert.
+	 * @return the converted value as a string.
+	 */
+	public static long toRoundedLong(final long value) {
+		final long input = value / DECIMAL_DIVISOR;
+		return input;
+	}
+
+	/**
+	 * converts the value to a long, by dividing by DECIMAL_DIVISOR. then formats it
+	 * to a string.
+	 *
+	 * @param value
+	 *            the long value to convert.
+	 * @return the converted value as a string.
+	 */
+	public static String toRoundedLongAsString(final long value) {
+		final long input = toRoundedLong(value);
+		return Long.toString(input);
+	}
+
+	/**
+	 * return the RIPEMD160 hash of the script.
+	 *
+	 * @param script
+	 *            the script to hash.
+	 * @return the RIPEMD160 hash of the script.
+	 */
+	public static UInt160 toScriptHash(final byte[] script) {
+		return new UInt160(RIPEMD160HashUtil.getRIPEMD160Hash(script));
 	}
 
 	/**
@@ -946,170 +1048,12 @@ public final class ModelUtil {
 		return array;
 	}
 
-	/**
-	 * converts a list of objects that implement the ToJsonObject interface into a
-	 * JSONArray of JSONObjects.
-	 *
-	 * @param ifNullReturnEmpty
-	 *            if the list is null, return an empty list. If this value is false,
-	 *            return null for a null list.
-	 * @param list
-	 *            the list of objects to use.
-	 * @param <T>
-	 *            the type of the objects that implements ToJsonObject .
-	 * @return the JSONArray of JSONObjects.
-	 */
-	public static <T extends ToJsonObject> JSONArray toJSONArray(final boolean ifNullReturnEmpty, final List<T> list) {
-		if (list == null) {
-			if (ifNullReturnEmpty) {
-				return new JSONArray();
-			} else {
-				return null;
-			}
-		}
-		final JSONArray jsonArray = new JSONArray();
-
-		for (final T t : list) {
-			jsonArray.put(t.toJSONObject());
-		}
-
-		return jsonArray;
-	}
-
-	/**
-	 * converts a byte array to a hex string in reverse byte order.
-	 *
-	 * @param bytes
-	 *            the array of bytes.
-	 * @return the string.
-	 */
-	public static String toReverseHexString(final byte... bytes) {
-		final byte[] ba = new byte[bytes.length];
-		System.arraycopy(bytes, 0, ba, 0, bytes.length);
-		ArrayUtils.reverse(ba);
-		final BigInteger bi = new BigInteger(1, ba);
-		return bi.toString(16);
-	}
-
-	/**
-	 * converts the value to a double, by dividing by DECIMAL_DIVISOR.
-	 *
-	 * @param value
-	 *            the long value to convert.
-	 * @return the converted value
-	 */
-	public static double toRoundedDouble(final long value) {
-		final double input = value / DECIMAL_DIVISOR;
-		return input;
-	}
-
-	/**
-	 * converts the value to a double, by dividing by DECIMAL_DIVISOR. then formats
-	 * it to a string with two decimal places.
-	 *
-	 * @param value
-	 *            the long value to convert.
-	 * @return the converted value as a string.
-	 */
-	public static String toRoundedDoubleAsString(final long value) {
-		final double input = toRoundedDouble(value);
-		return String.format("%.2f", input);
-	}
-
-	/**
-	 * converts the value to a long, by dividing by DECIMAL_DIVISOR.
-	 *
-	 * @param value
-	 *            the long value to convert.
-	 * @return the converted value as a string.
-	 */
-	public static long toRoundedLong(final long value) {
-		final long input = value / DECIMAL_DIVISOR;
-		return input;
-	}
-
-	/**
-	 * converts the value to a long, by dividing by DECIMAL_DIVISOR. then formats it
-	 * to a string.
-	 *
-	 * @param value
-	 *            the long value to convert.
-	 * @return the converted value as a string.
-	 */
-	public static String toRoundedLongAsString(final long value) {
-		final long input = toRoundedLong(value);
-		return Long.toString(input);
-	}
-
-	/**
-	 * return the RIPEMD160 hash of the script.
-	 *
-	 * @param script
-	 *            the script to hash.
-	 * @return the RIPEMD160 hash of the script.
-	 */
-	public static UInt160 toScriptHash(final byte[] script) {
-		return new UInt160(RIPEMD160HashUtil.getRIPEMD160Hash(script));
-	}
-
-	/**
-	 * Write an unsigned 32-bit value to a byte array in little-endian format
-	 *
-	 * @param       val             Value to be written
-	 * @param       out             Output array
-	 * @param       offset          Starting offset
-	 */
-	public static void uint32ToByteArrayLE(long val, byte[] out, int offset) {
-		out[offset++] = (byte)val;
-		out[offset++] = (byte)(val >> 8);
-		out[offset++] = (byte)(val >> 16);
-		out[offset] = (byte)(val >> 24);
-	}
-
-	/**
-	 * Write an unsigned 64-bit value to a byte array in little-endian format
-	 *
-	 * @param       val             Value to be written
-	 * @param       out             Output array
-	 * @param       offset          Starting offset
-	 */
-	public static void uint64ToByteArrayLE(long val, byte[] out, int offset) {
-		out[offset++] = (byte)val;
-		out[offset++] = (byte)(val >> 8);
-		out[offset++] = (byte)(val >> 16);
-		out[offset++] = (byte)(val >> 24);
-		out[offset++] = (byte)(val >> 32);
-		out[offset++] = (byte)(val >> 40);
-		out[offset++] = (byte)(val >> 48);
-		out[offset] = (byte)(val >> 56);
-	}
-
-	/**
-	 * Encode the value in little-endian format
-	 *
-	 * @param       value           Value to encode
-	 * @return                      Byte array
-	 */
-	public static byte[] encode(long value) {
-		byte[] bytes;
-		if ((value&0xFFFFFFFF00000000L) != 0) {
-			// 1 marker + 8 data bytes
-			bytes = new byte[9];
-			bytes[0] = (byte)255;
-			uint64ToByteArrayLE(value, bytes, 1);
-		} else if ((value&0x00000000FFFF0000L) != 0) {
-			// 1 marker + 4 data bytes
-			bytes = new byte[5];
-			bytes[0] = (byte)254;
-			uint32ToByteArrayLE(value, bytes, 1);
-		} else if (value >= 253L) {
-			// 1 marker + 2 data bytes
-			bytes = new byte[]{(byte)253, (byte)value, (byte)(value>>8)};
-		} else {
-			// Single data byte
-			bytes = new byte[]{(byte)value};
-		}
-		return bytes;
+	public static String num2hexstring(int size, final byte... data) {
+		size = size * 2;
+		String hexstring = toHexString(data);
+		hexstring = hexstring.length() % size == 0 ? hexstring : (new String(new char[size]).replace("\0", "0")+ hexstring).substring(hexstring.length());
+		// if (littleEndian) hexstring = reverseHex(hexstring);
+		return hexstring;
 	}
 
 	/**
@@ -1133,12 +1077,12 @@ public final class ModelUtil {
 		return bytes;
 	}
 
+
 	/**
 	 * the constructor.
 	 */
 	private ModelUtil() {
 
 	}
-
 
 }

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -187,7 +186,7 @@ public final class NetworkUtil {
 	 *            the byte to write.
 	 */
 	private static void writeByte(final OutputStream out, final byte value) {
-		write(out, value);
+		write(out, new byte[] { value });
 	}
 
 	/**
@@ -259,10 +258,14 @@ public final class NetworkUtil {
 	 *             if an error occurs.
 	 */
 	public static void writeString(final OutputStream out, final int length, final String str) {
-		final byte[] ba = str.getBytes(StandardCharsets.UTF_8);
-		final ByteBuffer bb = ByteBuffer.allocate(length);
-		bb.put(ba);
-		write(out, bb.array());
+		try {
+			final byte[] ba = str.getBytes(UTF_8);
+			final ByteBuffer bb = ByteBuffer.allocate(length);
+			bb.put(ba);
+			write(out, bb.array());
+		} catch (final UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -276,9 +279,13 @@ public final class NetworkUtil {
 	 *             if an error occurs.
 	 */
 	public static void writeString(final OutputStream out, final String str) {
-		final byte[] ba = str.getBytes(StandardCharsets.UTF_8);
-		writeVarInt(out, ba.length);
-		write(out, ba);
+		try {
+			final byte[] ba = str.getBytes(UTF_8);
+			writeVarInt(out, ba.length);
+			write(out, ba);
+		} catch (final UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

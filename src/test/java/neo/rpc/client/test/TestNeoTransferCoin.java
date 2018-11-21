@@ -1,17 +1,20 @@
 package neo.rpc.client.test;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-
 import neo.Wallet.DumpedPrivateKey;
 import neo.Wallet.ECException;
 import neo.Wallet.ECKey;
+import neo.model.bytes.UInt16;
 import neo.model.bytes.UInt160;
+import neo.model.core.CoinReference;
+import neo.model.core.Transaction;
+import neo.model.core.TransactionOutput;
+import neo.model.core.TransactionType;
+import neo.model.util.ModelUtil;
+import neo.rpc.client.RpcClientUtil;
 import org.apache.kerby.util.Hex;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -19,18 +22,9 @@ import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import neo.model.bytes.UInt16;
-import neo.model.core.CoinReference;
-import neo.model.core.Transaction;
-import neo.model.core.TransactionAttributeUsage;
-import neo.model.core.TransactionOutput;
-import neo.model.core.TransactionType;
-import neo.model.util.ModelUtil;
-import neo.Wallet.AddressFormatException;
-import neo.rpc.client.CityOfZionUtil;
-import neo.rpc.client.RpcClientUtil;
-
 import javax.xml.bind.DatatypeConverter;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 /**
  * tests the RPC server.

@@ -16,7 +16,10 @@
  */
 package neo.Wallet;
 
+import neo.model.bytes.UInt160;
 import neo.model.util.ModelUtil;
+import neo.model.util.RIPEMD160HashUtil;
+import neo.model.util.SHA256HashUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
@@ -34,9 +37,6 @@ import org.bouncycastle.math.ec.ECFieldElement;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256R1Curve;
 import org.bouncycastle.util.encoders.Base64;
-import neo.model.util.RIPEMD160HashUtil;
-import neo.model.util.SHA256HashUtil;
-import neo.model.bytes.UInt160;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
@@ -550,7 +550,7 @@ public class ECKey {
         try {
             try (ByteArrayOutputStream outStream = new ByteArrayOutputStream(message.length()*2)) {
                 byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
-                outStream.write(ModelUtil.encode(messageBytes.length));
+                outStream.write(messageBytes.length);
                 outStream.write(messageBytes);
                 contents = outStream.toByteArray();
             }

@@ -493,7 +493,7 @@ public final class BlockDbMapDbImpl implements BlockDb {
 	private byte[] getByteArrayFromAssetValueMap(final Map<UInt256, Fixed8> friendAssetValueMap) {
 		final byte[] mapBa;
 		final ByteArrayOutputStream bout;
-		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();) {
 			NetworkUtil.writeVarInt(out, friendAssetValueMap.size());
 			for (final UInt256 key : friendAssetValueMap.keySet()) {
 				final Fixed8 value = friendAssetValueMap.get(key);
@@ -790,7 +790,11 @@ public final class BlockDbMapDbImpl implements BlockDb {
 				final long blockIndex = block.getIndexAsLong();
 				final long maxBlockIndex = getMaxBlockIndex();
 				final boolean duplicateBlock;
-                duplicateBlock = (blockIndex <= maxBlockIndex) && (blockIndex != 0) && (maxBlockIndex != 0);
+				if ((blockIndex <= maxBlockIndex) && (blockIndex != 0) && (maxBlockIndex != 0)) {
+					duplicateBlock = true;
+				} else {
+					duplicateBlock = false;
+				}
 
 				if (duplicateBlock) {
 					LOG.error("duplicate block,blockIndex:{};maxBlockIndex:{};hash:{};", blockIndex, maxBlockIndex,

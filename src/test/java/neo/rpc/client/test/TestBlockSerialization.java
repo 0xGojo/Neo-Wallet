@@ -173,10 +173,18 @@ public class TestBlockSerialization {
 	/**
 	 * pulls all the blocks (slow) to check for full coverage.
 	 *
-     */
+	 * @throws ClientProtocolException
+	 *             if an error occurs.
+	 * @throws IOException
+	 *             if an error occurs.
+	 * @throws DecoderException
+	 *             if an error occurs.
+	 * @throws InterruptedException
+	 *             if an error occurs.
+	 */
 	@Test
 	@Ignore
-	public void test00ZAllBlocks() {
+	public void test00ZAllBlocks() throws ClientProtocolException, IOException, DecoderException, InterruptedException {
 		final BlockDb blockDb = new AbstractJsonMockBlockDb() {
 			@Override
 			public JSONArray getMockBlockDb() {

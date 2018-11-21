@@ -370,7 +370,8 @@ public class ExecutionEngine {
 			// Bitwise logic
 			case INVERT: {
 				final BigInteger x = evaluationStack.pop().getBigInteger();
-                evaluationStack.push(AbstractStackItem.valueOf(x.not()));
+				;
+				evaluationStack.push(AbstractStackItem.valueOf(x.not()));
 				break;
 			}
 			case AND: {

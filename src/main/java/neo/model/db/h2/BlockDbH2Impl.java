@@ -100,7 +100,7 @@ public final class BlockDbH2Impl implements BlockDb {
 	 *            the configuration to use.
 	 */
 	public BlockDbH2Impl(final JSONObject config) {
-		try (InputStream resourceAsStream = BlockDbH2Impl.class.getResourceAsStream(SQL_CACHE_XML)) {
+		try (InputStream resourceAsStream = BlockDbH2Impl.class.getResourceAsStream(SQL_CACHE_XML);) {
 			final String jsonStr = IOUtils.toString(resourceAsStream, "UTF-8");
 			sqlCache = XML.toJSONObject(jsonStr, true).getJSONObject("BlockDbImpl");
 		} catch (final IOException | NullPointerException e) {

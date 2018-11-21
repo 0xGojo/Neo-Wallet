@@ -139,7 +139,7 @@ public final class BlockImportExportUtil {
 		final LocalNodeData localNodeData = controller.getLocalNodeData();
 		final BlockDb blockDb = localNodeData.getBlockDb();
 		try (OutputStream statsFileOut = new FileOutputStream(localNodeData.getChainExportStatsFileName());
-				PrintWriter statsWriter = new PrintWriter(statsFileOut, true)) {
+				PrintWriter statsWriter = new PrintWriter(statsFileOut, true);) {
 			statsWriter.println(OPEN_BRACKET);
 			try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(
 					new FileOutputStream(localNodeData.getChainExportDataFileName()), 1024 * 1024 * 32))) {
@@ -295,7 +295,8 @@ public final class BlockImportExportUtil {
 			throw new RuntimeException("error calculating totalFee", e);
 		}
 		final Fixed8 networkFee;
-        try {
+		;
+		try {
 			networkFee = ModelUtil.subtract(systemFee, totalFee);
 		} catch (final RuntimeException e) {
 			LOG.error("txType:{}; totalInput:{}; totalOutput:{}; systemFee:{}; totalFee:{}; hash:{};", tx.type,
@@ -384,12 +385,12 @@ public final class BlockImportExportUtil {
 		final BlockDb blockDb = localNodeData.getBlockDb();
 
 		try (OutputStream statsFileOut = new FileOutputStream(localNodeData.getChainExportStatsFileName());
-				PrintWriter statsWriter = new PrintWriter(statsFileOut, true)) {
+				PrintWriter statsWriter = new PrintWriter(statsFileOut, true);) {
 			statsWriter.println(OPEN_BRACKET);
 			long maxIndex = 0;
 			try (InputStream fileIn = new FileInputStream(localNodeData.getChainExportDataFileName());
 					BufferedInputStream buffIn = new BufferedInputStream(fileIn, 1024 * 1024 * 32);
-					DataInputStream in = new DataInputStream(buffIn)) {
+					DataInputStream in = new DataInputStream(buffIn);) {
 
 				final byte[] maxIndexBa = new byte[UInt32.SIZE];
 				in.read(maxIndexBa);

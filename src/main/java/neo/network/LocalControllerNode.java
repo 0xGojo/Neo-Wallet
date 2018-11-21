@@ -355,7 +355,9 @@ public class LocalControllerNode {
 			if (data.isAcknowledgedPeer()) {
 				if (data.getBlockHeight() != null) {
 					final long blockCount = localNodeData.getBlockDb().getBlockCount();
-                    return (data.getBlockHeight() + 1000) < blockCount;
+					if ((data.getBlockHeight() + 1000) < blockCount) {
+						return true;
+					}
 				}
 			}
 		}

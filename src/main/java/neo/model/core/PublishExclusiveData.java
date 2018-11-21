@@ -109,7 +109,7 @@ public final class PublishExclusiveData implements ExclusiveData, ToJsonObject, 
 			parameterListBa[ix] = parameterList.get(ix).getTypeByte();
 		}
 		NetworkUtil.writeByteArray(bout, parameterListBa);
-		NetworkUtil.write(bout, returnType.getTypeByte());
+		NetworkUtil.write(bout, new byte[] { returnType.getTypeByte() });
 
 		if (version >= 1) {
 			if (needStorage) {

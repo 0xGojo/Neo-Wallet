@@ -79,10 +79,10 @@ public final class RegisterExclusiveData implements ExclusiveData, ToJsonObject,
 	@Override
 	public byte[] toByteArray() {
 		final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		NetworkUtil.write(bout, assetType.getTypeByte());
+		NetworkUtil.write(bout, new byte[] { assetType.getTypeByte() });
 		NetworkUtil.writeByteArray(bout, nameBa);
 		NetworkUtil.write(bout, amount, true);
-		NetworkUtil.write(bout, precision);
+		NetworkUtil.write(bout, new byte[] { precision });
 		NetworkUtil.write(bout, owner.toByteArray(), true);
 		NetworkUtil.write(bout, admin, true);
 		return bout.toByteArray();

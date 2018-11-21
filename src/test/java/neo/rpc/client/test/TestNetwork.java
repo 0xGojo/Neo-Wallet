@@ -169,17 +169,17 @@ public class TestNetwork {
 		 */
 		private static final class SocketWrapperImpl implements SocketWrapper {
 			@Override
-			public void close() {
+			public void close() throws Exception {
 			}
 
 			@Override
-			public void connect(final SocketAddress endpoint, final int timeout) {
+			public void connect(final SocketAddress endpoint, final int timeout) throws IOException {
 			}
 
 			@Override
 			public InputStream getInputStream() throws IOException {
 				final byte[] ba;
-				try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+				try (ByteArrayOutputStream bout = new ByteArrayOutputStream();) {
 					writeVersionMessage(bout);
 					writeVerackMessage(bout);
 					writeInventoryMessage(bout);
@@ -189,12 +189,12 @@ public class TestNetwork {
 			}
 
 			@Override
-			public OutputStream getOutputStream() {
+			public OutputStream getOutputStream() throws IOException {
 				return new NullOutputStream();
 			}
 
 			@Override
-			public void setSoTimeout(final int timeout) {
+			public void setSoTimeout(final int timeout) throws SocketException {
 			}
 
 			/**

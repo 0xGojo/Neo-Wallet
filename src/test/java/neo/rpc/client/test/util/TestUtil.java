@@ -99,7 +99,7 @@ public final class TestUtil {
 			final String testFunctionName) {
 		final String resourceName = "/neo/rpc/client/" + testPackageName + "/" + testClassName + "." + testFunctionName
 				+ ".json";
-		try (InputStream resourceAsStream = TestUtil.class.getResourceAsStream(resourceName)) {
+		try (InputStream resourceAsStream = TestUtil.class.getResourceAsStream(resourceName);) {
 			final String jsonStr = IOUtils.toString(resourceAsStream, "UTF-8");
 			return jsonStr;
 		} catch (final IOException | NullPointerException e) {
@@ -139,7 +139,7 @@ public final class TestUtil {
 	}
 
 	public static void initSocket(final Socket s, final String host, final int port, final JSONObject error)
-			throws IOException {
+			throws SocketException, IOException {
 		final SocketAddress endpoint = new InetSocketAddress(host, port);
 		try {
 			s.setSoTimeout(1000);
@@ -176,7 +176,7 @@ public final class TestUtil {
 
 	private static byte[] sendAsynch(final String host, final int port, final byte[] message, final JSONObject error)
 			throws IOException {
-		try (Socket s = new Socket()) {
+		try (Socket s = new Socket();) {
 			initSocket(s, host, port, error);
 			if (error.length() != 0) {
 				return new byte[0];

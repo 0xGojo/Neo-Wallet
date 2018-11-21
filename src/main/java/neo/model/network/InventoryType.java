@@ -14,8 +14,9 @@ public enum InventoryType {
 	/** Consensus. */
 	CONSENSUS(0xe0);
 	/** ending semicolon */
+	;
 
-    /**
+	/**
 	 * return the InventoryType with the given type byte.
 	 *
 	 * @param typeByte

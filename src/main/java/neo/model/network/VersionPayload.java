@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
@@ -84,10 +83,18 @@ public final class VersionPayload implements ByteArraySerializable, Payload {
 		timestamp = new UInt32(ModelUtil.getFixedLengthByteArray(bb, 4, true));
 		port = new UInt16(ModelUtil.getFixedLengthByteArray(bb, 2, true));
 		nonce = new UInt32(ModelUtil.getFixedLengthByteArray(bb, 4, true));
-        userAgent = new String(ModelUtil.getVariableLengthByteArray(bb), StandardCharsets.UTF_8);
-        startHeight = new UInt32(ModelUtil.getFixedLengthByteArray(bb, 4, true));
+		try {
+			userAgent = new String(ModelUtil.getVariableLengthByteArray(bb), "UTF-8");
+		} catch (final UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		startHeight = new UInt32(ModelUtil.getFixedLengthByteArray(bb, 4, true));
 
-        relay = bb.get() != 0;
+		if (bb.get() == 0) {
+			relay = false;
+		} else {
+			relay = true;
+		}
 	}
 
 	/**

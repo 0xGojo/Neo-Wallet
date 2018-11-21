@@ -4,13 +4,13 @@ import neo.vm.AbstractStackItem;
 import neo.vm.IInteropInterface;
 
 public interface IIterator extends IInteropInterface {
-	void Dispose();
+	public abstract void Dispose();
 
-	AbstractStackItem Key();
+	public abstract AbstractStackItem Key();
 
-	boolean Next();
+	public abstract boolean Next();
 
-	AbstractStackItem Value();
+	public abstract AbstractStackItem Value();
 }
 
 // using Neo.VM;

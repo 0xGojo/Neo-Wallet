@@ -25,8 +25,9 @@ public enum CityOfZionCommandEnum {
 	/** */
 	;
 	/** trailing semicolon */
+	;
 
-    /**
+	/**
 	 * returns a command with th given name.
 	 *
 	 * @param name
