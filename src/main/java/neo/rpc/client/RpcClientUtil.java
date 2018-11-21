@@ -61,6 +61,28 @@ public final class RpcClientUtil {
 	}
 
 	/**
+	 * returns the block count.
+	 *
+	 * @param timeoutMillis
+	 *            the timeout in milliseconds.
+	 * @param rpcNode
+	 *            the RPC node to use.
+	 * @param silentErrors
+	 *            if false, log all timeout errors.
+	 * @return the block count.
+	 */
+	public static String getVersion(final long timeoutMillis, final String rpcNode, final boolean silentErrors) {
+		final JSONObject inputJson = new JSONObject(
+				"{\"jsonrpc\": \"2.0\", \"method\": \"getversion\", \"params\": [], \"id\": 1}");
+		final JSONObject outputJson = post(timeoutMillis, rpcNode, silentErrors, inputJson);
+		LOG.trace("getversion outputJson:{}", outputJson);
+		if (outputJson == null) {
+			return null;
+		}
+		return (String)outputJson.getJSONObject(RESULT).get("useragent");
+	}
+
+	/**
 	 * returns the transaction hash.
 	 *
 	 * @param timeoutMillis
@@ -87,6 +109,35 @@ public final class RpcClientUtil {
 		final JSONObject outputJson = RpcClientUtil.post(1000, rpcNode, false, inputJson);
 		return outputJson;
 	}
+
+	/**
+	 * returns the transaction hash.
+	 *
+	 * @param timeoutMillis
+	 *            the timeout in milliseconds.
+	 * @param rpcNode
+	 *            the RPC node to use.
+	 * @param silentErrors
+	 *            if false, log all timeout errors.
+	 * @param index
+	 *            the index of block in blockchain.
+	 * @return the transaction hash.
+	 */
+	public static JSONObject getBlockInforByIndex(final long timeoutMillis, final String rpcNode,
+												  final boolean silentErrors, final int index) {
+		final JSONArray paramsJson = new JSONArray();
+		paramsJson.put(index);
+		paramsJson.put(0);
+		final JSONObject inputJson = new JSONObject();
+		inputJson.put("jsonrpc", "2.0");
+		inputJson.put("method", "getblock");
+		inputJson.put("params", paramsJson);
+		inputJson.put("id", 3);
+
+		final JSONObject outputJson = RpcClientUtil.post(1000, rpcNode, false, inputJson);
+		return outputJson;
+	}
+
 
 	/**
 	 * posts a request.

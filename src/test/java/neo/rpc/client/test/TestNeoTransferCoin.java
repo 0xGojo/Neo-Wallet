@@ -71,14 +71,14 @@ public class TestNeoTransferCoin {
 
     @Test
     public void test001Remark() throws ECException {
-        final String rpcNode = "http://seed2.neo.org:20332";//
+        final String rpcNode = "http://127.0.0.1:20332";
         //CityOfZionUtil.getTestNetRpcNode();
-//        final String rpcNode = CityOfZionUtil.getTestNetRpcNode();
+        //final String rpcNode = CityOfZionUtil.getTestNetRpcNode();
         //LOG.info("test001Remark blockCount:{}:", RpcClientUtil.getBlockCount(1000, rpcNode, false));
         final byte[] txBa = new byte[800];
         txBa[0] = TransactionType.CONTRACT_TRANSACTION.getTypeByte();
         txBa[2] = 1;
-//        txBa[3] = TransactionAttributeUsage.REMARK_00.getTypeByte();
+        //txBa[3] = TransactionAttributeUsage.REMARK_00.getTypeByte();
         txBa[4] = 4;
         final Transaction tx = new Transaction(ByteBuffer.wrap(txBa));
         tx.attributes.clear();
@@ -97,17 +97,19 @@ public class TestNeoTransferCoin {
         String rawTx = ModelUtil.AddContract(tx_serialize, signed, eckey.createSignatureScript()).toLowerCase();
 
         final JSONArray paramsJson = new JSONArray();
-        paramsJson.put(Hex.encode(ModelUtil.hexStringToByteArray(rawTx)));
+        paramsJson.put(rawTx);
         final JSONObject inputJson = new JSONObject();
         inputJson.put("jsonrpc", "2.0");
         inputJson.put("method", "sendrawtransaction");
         inputJson.put("params", paramsJson);
         inputJson.put("id", 1);
 
-
-//        final JSONObject outputJson = RpcClientUtil.post(1000, rpcNode, false, inputJson);
-//        Assert.assertNotNull("outputJson cannot be null", outputJson);
-//        LOG.info("test001Remark outputJson:{}:", outputJson.toString(2));
+        LOG.info("test001Remark tx:{}:", inputJson.get("params"));
+        Integer result = RpcClientUtil.getBlockCount(1000, rpcNode, false);
+        String version = RpcClientUtil.getVersion(1000, rpcNode, false);
+        //final JSONObject outputJson = RpcClientUtil.post(1000, rpcNode, false, inputJson);
+        //Assert.assertNotNull("outputJson cannot be null", outputJson);
+        //LOG.info("test001Remark outputJson:{}:", outputJson.toString(2));
     }
 
 
