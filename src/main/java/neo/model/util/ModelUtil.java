@@ -1077,6 +1077,26 @@ public final class ModelUtil {
 		return bytes;
 	}
 
+	public static void processVin(Transaction tx, JSONArray vin){
+		for(int i = 0; i < vin.length(); i++){
+			String check = vin.getJSONObject(i).getString("txid");
+			tx.inputs.add(new CoinReference(
+					getUInt256(ByteBuffer
+							.wrap(reverse(org.apache.kerby.util.Hex.decode(vin.getJSONObject(i).getString("txid").substring(2))))),
+					new UInt16((Integer) vin.getJSONObject(i).get("vout"))));
+		}
+	}
+
+	public static void processVout(Transaction tx, JSONArray vout){
+		for(int i = 0; i < vout.length(); i++){
+			tx.outputs.add(new TransactionOutput(NEO_HASH, getFixed8(new BigInteger(vout.getJSONObject(i).getString("value"))),
+					addressToScriptHash(vout.getJSONObject(i).getString("address"))));
+		}
+	}
+
+	public static String getTransactionHash(Transaction txConstructor, boolean signed){
+		return toHexString(reverse(SHA256HashUtil.getDoubleSHA256Hash(hexStringToByteArray(serializeTransaction(txConstructor, signed)))));
+	}
 
 	/**
 	 * the constructor.

@@ -99,7 +99,7 @@ public final class RpcClientUtil {
 												  final boolean silentErrors, final String txId) {
 		final JSONArray paramsJson = new JSONArray();
 		paramsJson.put(txId);
-		paramsJson.put(0);
+		paramsJson.put(1);
 		final JSONObject inputJson = new JSONObject();
 		inputJson.put("jsonrpc", "2.0");
 		inputJson.put("method", "getrawtransaction");

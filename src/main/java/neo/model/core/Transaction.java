@@ -1,17 +1,5 @@
 package neo.model.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.json.JSONObject;
-
 import neo.model.ByteArraySerializable;
 import neo.model.ToJsonObject;
 import neo.model.bytes.UInt160;
@@ -24,6 +12,17 @@ import neo.model.util.SHA256HashUtil;
 import neo.model.util.TransactionUtil;
 import neo.vm.IInteropInterface;
 import neo.vm.IScriptContainer;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * the transaction.
@@ -34,7 +33,7 @@ import neo.vm.IScriptContainer;
 public final class Transaction implements ToJsonObject, ByteArraySerializable, Serializable, Payload, IScriptContainer {
 
 	private static final long serialVersionUID = 1L;
-
+	private String blockTime;
 	/**
 	 * return the comparator used for comparing Transactions.
 	 *
@@ -114,6 +113,14 @@ public final class Transaction implements ToJsonObject, ByteArraySerializable, S
 		return new UInt256(hashBa);
 	}
 
+	public void setBlockTime(String _time){
+		blockTime = _time;
+	}
+
+	public String getBlockTime(){
+		return blockTime;
+	}
+
 	@Override
 	public int compareTo(final IInteropInterface object) {
 		final Transaction that = (Transaction) object;
@@ -190,6 +197,9 @@ public final class Transaction implements ToJsonObject, ByteArraySerializable, S
 		hash = calculateHash();
 	}
 
+	public void setHash(UInt256 _hash){
+		hash = _hash;
+	}
 	/**
 	 * return a byte array containing only the base data, no inputs outputs or
 	 * scripts.
